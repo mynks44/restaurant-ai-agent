@@ -1,0 +1,21 @@
+{
+  "name": "restaurant-ai-agent-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.6.0",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "mongodb": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest"
+  }
+}
