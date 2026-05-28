@@ -11,9 +11,10 @@ function App() {
 
   const [input, setInput] = useState("");
   const [state, setState] = useState({});
+  const [loading, setLoading] = useState(false);
 
   async function sendMessage() {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
     const userText = input;
 
@@ -26,9 +27,18 @@ function App() {
     ]);
 
     setInput("");
+    setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat`, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      console.log("VITE_API_URL:", apiUrl);
+
+      if (!apiUrl) {
+        throw new Error("VITE_API_URL is missing. Add it in Vercel environment variables.");
+      }
+
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -40,7 +50,19 @@ function App() {
         })
       });
 
-      const data = await response.json();
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("Backend did not return JSON response.");
+      }
+
+      console.log("Backend response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || `Backend error. Status: ${response.status}`);
+      }
 
       if (data.state) {
         setState(data.state);
@@ -50,17 +72,21 @@ function App() {
         ...prev,
         {
           role: "assistant",
-          text: data.reply || data.error || "No reply received."
+          text: data.reply || "Backend responded, but no reply field was found."
         }
       ]);
-    } catch {
+    } catch (error) {
+      console.error("Frontend error:", error);
+
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: "Backend is not responding."
+          text: error.message || "Backend is not responding."
         }
       ]);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -76,6 +102,12 @@ function App() {
               {message.text}
             </div>
           ))}
+
+          {loading && (
+            <div className="message assistant">
+              Thinking... please wait.
+            </div>
+          )}
         </div>
 
         <div className="inputRow">
@@ -86,8 +118,11 @@ function App() {
               if (e.key === "Enter") sendMessage();
             }}
             placeholder="Type your order..."
+            disabled={loading}
           />
-          <button onClick={sendMessage}>Send</button>
+          <button onClick={sendMessage} disabled={loading}>
+            {loading ? "Wait..." : "Send"}
+          </button>
         </div>
       </div>
     </div>
