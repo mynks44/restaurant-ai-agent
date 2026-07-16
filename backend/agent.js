@@ -29,6 +29,41 @@ function extractJson(text) {
   }
 }
 
+async function generateWithFallback(prompt) {
+  const models = [
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash"
+  ];
+
+  let lastError;
+
+  for (const model of models) {
+    try {
+      console.log("Trying Gemini model:", model);
+
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt
+      });
+
+      console.log("Gemini model succeeded:", model);
+      return response;
+    } catch (error) {
+      lastError = error;
+
+      console.error("Gemini model failed:", model);
+      console.error(error.message || error);
+
+      if (error.status) {
+        console.error("Gemini error status:", error.status);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export async function runRestaurantAgent(userMessage, conversationState = {}) {
   const prompt = `
 You are a restaurant AI agent.
@@ -54,11 +89,13 @@ Return JSON format:
 
 Rules:
 - If user asks menu, action is check_menu.
+- If user greets you, action is general_reply.
 - If user wants pizza and gives size/toppings, action is check_price.
 - If user says yes/place it/order it and pending order exists, action is place_order.
 - If user asks order status, action is track_order.
 - If missing size, ask question using general_reply.
 - Do not invent prices. Backend/database calculates prices.
+- Keep replies short and friendly.
 
 Previous state:
 ${JSON.stringify(conversationState)}
@@ -67,12 +104,20 @@ User message:
 ${userMessage}
 `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-lite",
-    contents: prompt
-  });
+  let response;
 
-  const parsed = extractJson(response.text);
+  try {
+    response = await generateWithFallback(prompt);
+  } catch (error) {
+    console.error("All Gemini models failed:", error);
+
+    return {
+      reply: "The AI service is busy right now. Please try again in a few seconds.",
+      state: conversationState
+    };
+  }
+
+  const parsed = extractJson(response.text || "");
 
   if (!parsed) {
     return {
@@ -182,7 +227,9 @@ ${userMessage}
   }
 
   return {
-    reply: parsed.reply || "I can help you order pizza. What size would you like?",
+    reply:
+      parsed.reply ||
+      "Hi! I can help you order pizza. You can ask for the menu or tell me what pizza you want.",
     state: conversationState
   };
 }
