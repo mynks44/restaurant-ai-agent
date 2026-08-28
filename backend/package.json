@@ -16,7 +16,9 @@
     "cors": "latest",
     "dotenv": "latest",
     "express": "latest",
-    "mongodb": "latest"
+    "firebase-admin": "^13.10.0",
+    "mongodb": "latest",
+    "stripe": "^22.3.2"
   },
   "devDependencies": {
     "nodemon": "latest"
