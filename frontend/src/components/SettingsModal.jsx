@@ -1,5 +1,5 @@
 import { Elements } from "@stripe/react-stripe-js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { stripePromise } from "../stripeClient";
 import PaymentSetupForm from "./PaymentSetupForm";
@@ -22,30 +22,78 @@ const emptyProfile = {
   paymentReady: false
 };
 
-function SettingsModal({
-  onClose,
-  theme = "dark"
-}) {
+function detectCardBrand(cardNumber = "") {
+  const number = cardNumber.replace(/\D/g, "");
+
+  if (/^4/.test(number)) {
+    return "Visa";
+  }
+
+  if (
+    /^(5[1-5]|2(2[2-9]|[3-6][0-9]|7[01]|720))/.test(number)
+  ) {
+    return "Mastercard";
+  }
+
+  if (/^3[47]/.test(number)) {
+    return "American Express";
+  }
+
+  if (/^(6011|65|64[4-9])/.test(number)) {
+    return "Discover";
+  }
+
+  if (/^35/.test(number)) {
+    return "JCB";
+  }
+
+  if (/^3(0[0-5]|[68])/.test(number)) {
+    return "Diners Club";
+  }
+
+  if (/^62/.test(number)) {
+    return "UnionPay";
+  }
+
+  return "";
+}
+
+function formatCardNumber(value = "") {
+  const digits = value
+    .replace(/\D/g, "")
+    .slice(0, 16);
+
+  return digits
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+}
+
+function SettingsModal({ onClose, theme = "dark" }) {
   const { getToken } = useAuth();
 
-  const [tab, setTab] = useState("profile");
-  const [profile, setProfile] =
-    useState(emptyProfile);
-  const [clientSecret, setClientSecret] =
-    useState("");
-  const [consent, setConsent] =
-    useState(false);
-  const [loading, setLoading] =
-    useState(true);
-  const [message, setMessage] =
-    useState("");
-  const [error, setError] =
-    useState("");
+  const expiryYearRef = useRef(null);
 
-  async function authorizedFetch(
-    path,
-    options = {}
-  ) {
+  const [tab, setTab] = useState("profile");
+  const [profile, setProfile] = useState(emptyProfile);
+  const [clientSecret, setClientSecret] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: "",
+    expiryMonth: "",
+    expiryYear: "",
+    cvv: "",
+    cardholderName: ""
+  });
+
+  const cardBrand = detectCardBrand(
+    cardDetails.cardNumber
+  );
+
+  async function authorizedFetch(path, options = {}) {
     const token = await getToken();
 
     return fetch(
@@ -53,8 +101,7 @@ function SettingsModal({
       {
         ...options,
         headers: {
-          "Content-Type":
-            "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
           ...(options.headers || {})
         }
@@ -66,9 +113,7 @@ function SettingsModal({
     async function loadProfile() {
       try {
         const response =
-          await authorizedFetch(
-            "/api/profile"
-          );
+          await authorizedFetch("/api/profile");
 
         const data = await response.json();
 
@@ -113,8 +158,68 @@ function SettingsModal({
     }));
   }
 
+  function handleCardNumberChange(event) {
+    const formattedNumber =
+      formatCardNumber(
+        event.target.value
+      );
+
+    setCardDetails(previous => ({
+      ...previous,
+      cardNumber: formattedNumber
+    }));
+  }
+
+  function handleExpiryMonthChange(event) {
+    let value = event.target.value
+      .replace(/\D/g, "")
+      .slice(0, 2);
+
+    if (value.length === 2) {
+      const month = Number(value);
+
+      if (month < 1 || month > 12) {
+        return;
+      }
+    }
+
+    setCardDetails(previous => ({
+      ...previous,
+      expiryMonth: value
+    }));
+
+    if (value.length === 2) {
+      setTimeout(() => {
+        expiryYearRef.current?.focus();
+      }, 0);
+    }
+  }
+
+  function handleExpiryYearChange(event) {
+    const value = event.target.value
+      .replace(/\D/g, "")
+      .slice(0, 2);
+
+    setCardDetails(previous => ({
+      ...previous,
+      expiryYear: value
+    }));
+  }
+
+  function handleCvvChange(event) {
+    const value = event.target.value
+      .replace(/\D/g, "")
+      .slice(0, 4);
+
+    setCardDetails(previous => ({
+      ...previous,
+      cvv: value
+    }));
+  }
+
   async function saveProfile(event) {
     event.preventDefault();
+
     setMessage("");
     setError("");
 
@@ -139,6 +244,7 @@ function SettingsModal({
       }
 
       setProfile(data);
+
       setMessage(
         "Your details were saved successfully."
       );
@@ -151,10 +257,25 @@ function SettingsModal({
     setError("");
     setMessage("");
 
+    if (
+      !cardDetails.cardNumber ||
+      !cardDetails.expiryMonth ||
+      !cardDetails.expiryYear ||
+      !cardDetails.cvv ||
+      !cardDetails.cardholderName
+    ) {
+      setError(
+        "Please fill in all card details."
+      );
+
+      return;
+    }
+
     if (!consent) {
       setError(
         "Please agree to securely save this payment method."
       );
+
       return;
     }
 
@@ -176,7 +297,9 @@ function SettingsModal({
         throw new Error(data.error);
       }
 
-      setClientSecret(data.clientSecret);
+      setClientSecret(
+        data.clientSecret
+      );
     } catch (error) {
       setError(error.message);
     }
@@ -205,6 +328,7 @@ function SettingsModal({
       }));
 
       setClientSecret("");
+
       setMessage(
         "Saved payment method removed."
       );
@@ -231,7 +355,10 @@ function SettingsModal({
             <p className="eyebrow">
               Customer preferences
             </p>
-            <h2>Account Settings</h2>
+
+            <h2>
+              Account Settings
+            </h2>
           </div>
 
           <button
@@ -249,7 +376,9 @@ function SettingsModal({
                 ? "settingsTab activeSettingsTab"
                 : "settingsTab"
             }
-            onClick={() => setTab("profile")}
+            onClick={() =>
+              setTab("profile")
+            }
           >
             Personal details
           </button>
@@ -260,7 +389,9 @@ function SettingsModal({
                 ? "settingsTab activeSettingsTab"
                 : "settingsTab"
             }
-            onClick={() => setTab("address")}
+            onClick={() =>
+              setTab("address")
+            }
           >
             Delivery address
           </button>
@@ -271,7 +402,9 @@ function SettingsModal({
                 ? "settingsTab activeSettingsTab"
                 : "settingsTab"
             }
-            onClick={() => setTab("payment")}
+            onClick={() =>
+              setTab("payment")
+            }
           >
             Payment
           </button>
@@ -296,6 +429,7 @@ function SettingsModal({
           >
             <label>
               Full name
+
               <input
                 name="fullName"
                 value={profile.fullName}
@@ -306,6 +440,7 @@ function SettingsModal({
 
             <label>
               Email address
+
               <input
                 value={profile.email}
                 disabled
@@ -314,6 +449,7 @@ function SettingsModal({
 
             <label>
               Phone number
+
               <input
                 name="phone"
                 value={profile.phone}
@@ -335,9 +471,12 @@ function SettingsModal({
           >
             <label>
               Street address
+
               <input
                 name="line1"
-                value={profile.address.line1}
+                value={
+                  profile.address.line1
+                }
                 onChange={changeAddress}
                 required
               />
@@ -345,9 +484,12 @@ function SettingsModal({
 
             <label>
               Apartment or unit
+
               <input
                 name="line2"
-                value={profile.address.line2}
+                value={
+                  profile.address.line2
+                }
                 onChange={changeAddress}
               />
             </label>
@@ -355,20 +497,30 @@ function SettingsModal({
             <div className="accountFormGrid">
               <label>
                 City
+
                 <input
                   name="city"
-                  value={profile.address.city}
-                  onChange={changeAddress}
+                  value={
+                    profile.address.city
+                  }
+                  onChange={
+                    changeAddress
+                  }
                   required
                 />
               </label>
 
               <label>
                 Province
+
                 <input
                   name="province"
-                  value={profile.address.province}
-                  onChange={changeAddress}
+                  value={
+                    profile.address.province
+                  }
+                  onChange={
+                    changeAddress
+                  }
                   required
                 />
               </label>
@@ -377,22 +529,30 @@ function SettingsModal({
             <div className="accountFormGrid">
               <label>
                 Postal code
+
                 <input
                   name="postalCode"
                   value={
                     profile.address.postalCode
                   }
-                  onChange={changeAddress}
+                  onChange={
+                    changeAddress
+                  }
                   required
                 />
               </label>
 
               <label>
                 Country
+
                 <input
                   name="country"
-                  value={profile.address.country}
-                  onChange={changeAddress}
+                  value={
+                    profile.address.country
+                  }
+                  onChange={
+                    changeAddress
+                  }
                   required
                 />
               </label>
@@ -400,13 +560,16 @@ function SettingsModal({
 
             <label>
               Delivery instructions
+
               <textarea
                 name="deliveryInstructions"
                 value={
                   profile.address
                     .deliveryInstructions
                 }
-                onChange={changeAddress}
+                onChange={
+                  changeAddress
+                }
                 placeholder="Leave at the door, do not ring the bell..."
               />
             </label>
@@ -424,15 +587,18 @@ function SettingsModal({
                 <div>
                   <span className="savedCardBrand">
                     {
-                      profile.paymentSummary
+                      profile
+                        .paymentSummary
                         .brand
                     }
                   </span>
+
                   <strong>
                     ••••{" "}
                     {
-                      profile.paymentSummary
-                        .last12
+                      profile
+                        .paymentSummary
+                        .last4
                     }
                   </strong>
                 </div>
@@ -440,19 +606,23 @@ function SettingsModal({
                 <span>
                   Expires{" "}
                   {
-                    profile.paymentSummary
+                    profile
+                      .paymentSummary
                       .expMonth
                   }
                   /
                   {
-                    profile.paymentSummary
+                    profile
+                      .paymentSummary
                       .expYear
                   }
                 </span>
 
                 <button
                   className="dangerButton"
-                  onClick={removePayment}
+                  onClick={
+                    removePayment
+                  }
                 >
                   Remove payment method
                 </button>
@@ -462,15 +632,116 @@ function SettingsModal({
                 <h3>
                   No saved payment method
                 </h3>
+
                 <p>
                   Add a card once and use it
-                  for future confirmed orders.
+                  for future confirmed
+                  orders.
                 </p>
               </div>
             )}
 
             {!clientSecret && (
               <>
+                {!profile.paymentSummary && (
+                  <div className="cardInputGroup">
+                    <label>
+                      Card number
+                      {cardBrand
+                        ? ` (${cardBrand})`
+                        : ""}
+
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={
+                          cardDetails.cardNumber
+                        }
+                        onChange={
+                          handleCardNumberChange
+                        }
+                        placeholder="1234 5678 9012 3456"
+                        maxLength="19"
+                      />
+                    </label>
+
+                    <div className="cardRow">
+                      <label>
+                        Expiry (MM/YY)
+
+                        <div className="expiryGroup">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="MM"
+                            value={
+                              cardDetails.expiryMonth
+                            }
+                            onChange={
+                              handleExpiryMonthChange
+                            }
+                            maxLength="2"
+                          />
+
+                          <span>/</span>
+
+                          <input
+                            ref={
+                              expiryYearRef
+                            }
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="YY"
+                            value={
+                              cardDetails.expiryYear
+                            }
+                            onChange={
+                              handleExpiryYearChange
+                            }
+                            maxLength="2"
+                          />
+                        </div>
+                      </label>
+
+                      <label>
+                        CVV
+
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={
+                            cardDetails.cvv
+                          }
+                          onChange={
+                            handleCvvChange
+                          }
+                          placeholder="123"
+                          maxLength="4"
+                        />
+                      </label>
+                    </div>
+
+                    <label>
+                      Cardholder name
+
+                      <input
+                        type="text"
+                        value={
+                          cardDetails.cardholderName
+                        }
+                        onChange={(e) =>
+                          setCardDetails({
+                            ...cardDetails,
+                            cardholderName:
+                              e.target.value
+                          })
+                        }
+                        placeholder="John Doe"
+                      />
+                    </label>
+                  </div>
+                )}
+
                 <label className="consentRow">
                   <input
                     type="checkbox"
@@ -484,16 +755,22 @@ function SettingsModal({
 
                   <span>
                     I authorize this app to
-                    securely save this payment
-                    method with Stripe for
-                    future orders that I
-                    explicitly confirm.
+                    securely save this
+                    payment method with
+                    Stripe for future orders
+                    that I explicitly
+                    confirm.
                   </span>
                 </label>
 
                 <button
                   className="accountPrimary"
-                  onClick={startPaymentSetup}
+                  onClick={
+                    startPaymentSetup
+                  }
+                  disabled={
+                    !!profile.paymentSummary
+                  }
                 >
                   {profile.paymentSummary
                     ? "Replace payment method"
@@ -520,15 +797,25 @@ function SettingsModal({
                 }}
               >
                 <PaymentSetupForm
-                  onSaved={updatedProfile => {
-                    setProfile(
-                      updatedProfile
-                    );
-                    setClientSecret("");
-                    setMessage(
-                      "Payment method saved securely."
-                    );
-                  }}
+                  clientSecret={
+                    clientSecret
+                  }
+                  cardDetails={
+                    cardDetails
+                  }
+                  onSaved={
+                    updatedProfile => {
+                      setProfile(
+                        updatedProfile
+                      );
+
+                      setClientSecret("");
+
+                      setMessage(
+                        "Payment method saved securely."
+                      );
+                    }
+                  }
                 />
               </Elements>
             )}

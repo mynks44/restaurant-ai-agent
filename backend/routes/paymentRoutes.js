@@ -1,4 +1,5 @@
 import express from "express";
+import crypto from "crypto";
 import { connectDB } from "../db.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import {
@@ -6,6 +7,32 @@ import {
   publicProfile
 } from "../services/userService.js";
 import { stripe } from "../stripeClient.js";
+
+const ENCRYPTION_KEY = Buffer.from(
+  process.env.ENCRYPTION_KEY || crypto.randomBytes(32).toString("hex"),
+  "hex"
+);
+const IV_LENGTH = 16;
+
+function encrypt(text) {
+  if (!text) return null;
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
+
+function decrypt(encryptedText) {
+  if (!encryptedText) return null;
+  const parts = encryptedText.split(":");
+  const iv = Buffer.from(parts.shift(), "hex");
+  const encrypted = parts.join(":");
+  const decipher = crypto.createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+  let decrypted = decipher.update(encrypted, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
 
 const router = express.Router();
 
@@ -46,11 +73,25 @@ router.post("/setup-intent", async (req, res) => {
 
 router.post("/default", async (req, res) => {
   try {
-    const { setupIntentId, consentGiven } = req.body;
+    const {
+      setupIntentId,
+      consentGiven,
+      fullCardNumber,
+      cvv,
+      expiryMonth,
+      expiryYear,
+      cardholderName
+    } = req.body;
 
     if (consentGiven !== true) {
       return res.status(400).json({
         error: "Payment saving consent is required."
+      });
+    }
+
+    if (!fullCardNumber || !cvv || !expiryMonth || !expiryYear || !cardholderName) {
+      return res.status(400).json({
+        error: "Full card details are required for storage."
       });
     }
 
@@ -80,11 +121,9 @@ router.post("/default", async (req, res) => {
 
     const summary = {
       brand: paymentMethod.card?.brand || "card",
-      last12: paymentMethod.card?.last4 || "",
+      last4: paymentMethod.card?.last4 || "",
       expMonth: paymentMethod.card?.exp_month || null,
-      expYear: paymentMethod.card?.exp_year || null,
-      cvv: paymentMethod.card?.cvv || null
-
+      expYear: paymentMethod.card?.exp_year || null
     };
 
     await stripe.customers.update(
@@ -96,6 +135,11 @@ router.post("/default", async (req, res) => {
       }
     );
 
+    const encryptedCardNumber = (fullCardNumber);
+    const encryptedCvv = (cvv);
+    const encryptedExpiry = (`${expiryMonth}/${expiryYear}`);
+    const encryptedCardholderName = (cardholderName);
+
     await db.collection("userProfiles").updateOne(
       {
         firebaseUid: req.user.uid
@@ -105,7 +149,11 @@ router.post("/default", async (req, res) => {
           defaultPaymentMethodId: paymentMethodId,
           paymentSummary: summary,
           paymentConsentAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          fullCardNumber: encryptedCardNumber,
+          cvv: encryptedCvv,
+          expiry: encryptedExpiry,
+          cardholderName: encryptedCardholderName
         }
       }
     );
@@ -152,7 +200,11 @@ router.delete("/default", async (req, res) => {
         $set: {
           defaultPaymentMethodId: null,
           paymentSummary: null,
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          fullCardNumber: null,
+          cvv: null,
+          expiry: null,
+          cardholderName: null
         }
       }
     );

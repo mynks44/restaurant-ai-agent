@@ -1,25 +1,53 @@
 .accountOverlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1000;
+
   display: grid;
   place-items: center;
-  padding: 1rem;
+
+  padding: 1.25rem;
+
   background: rgba(2, 6, 23, 0.78);
-  backdrop-filter: blur(10px);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .accountModal {
   position: relative;
+
   width: min(680px, 100%);
   max-height: 92vh;
+
   overflow-y: auto;
-  padding: clamp(1.25rem, 3vw, 2rem);
+
+  padding: clamp(1.4rem, 3vw, 2rem);
+
   border: 1px solid var(--border);
-  border-radius: 1.75rem;
+  border-radius: 1.5rem;
+
   background: var(--panel-strong);
   color: var(--text);
-  box-shadow: var(--shadow);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45),
+    0 10px 30px rgba(0, 0, 0, 0.22);
+
+  scrollbar-width: thin;
+}
+
+.accountModal::-webkit-scrollbar {
+  width: 7px;
+}
+
+.accountModal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.accountModal::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.28);
 }
 
 .authModal {
@@ -30,136 +58,270 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  width: 2.7rem;
-  height: 2.7rem;
+
+  width: 2.6rem;
+  height: 2.6rem;
+
+  display: grid;
+  place-items: center;
+
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 0.85rem;
+
   background: var(--card);
+  color: var(--muted);
+
+  font-size: 1.35rem;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.accountClose:hover {
   color: var(--text);
-  font-size: 1.4rem;
+
+  border-color: rgba(249, 115, 22, 0.4);
+
+  background: rgba(249, 115, 22, 0.08);
+
+  transform: scale(1.04);
 }
 
 .accountDescription {
   margin: 0.75rem 0 1.4rem;
+
   color: var(--muted);
+
+  line-height: 1.6;
 }
 
 .accountForm {
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .accountForm label {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.5rem;
+
   color: var(--text);
+
+  font-size: 0.9rem;
   font-weight: 750;
 }
 
 .accountForm input,
 .accountForm textarea {
   width: 100%;
+
+  box-sizing: border-box;
+
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 0.9rem;
+
   padding: 0.9rem 1rem;
+
   background: var(--card);
   color: var(--text);
+
+  font: inherit;
+  font-size: 0.95rem;
+
   outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.accountForm input::placeholder,
+.accountForm textarea::placeholder {
+  color: var(--soft);
+}
+
+.accountForm input:hover,
+.accountForm textarea:hover {
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 .accountForm input:focus,
 .accountForm textarea:focus {
   border-color: var(--primary);
+
   box-shadow:
-    0 0 0 4px
-    rgba(249, 115, 22, 0.16);
+    0 0 0 4px rgba(249, 115, 22, 0.13);
+}
+
+.accountForm input:disabled {
+  opacity: 0.7;
+
+  cursor: not-allowed;
 }
 
 .accountForm textarea {
-  min-height: 100px;
+  min-height: 105px;
+
   resize: vertical;
+
+  line-height: 1.55;
 }
 
 .accountFormGrid {
   display: grid;
+
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
+
   gap: 1rem;
 }
 
 .accountPrimary,
 .googleButton {
   width: 100%;
-  border: none;
-  border-radius: 1rem;
-  padding: 0.95rem 1rem;
-  font-weight: 900;
+
+  min-height: 47px;
+
+  border-radius: 0.9rem;
+
+  padding: 0.9rem 1rem;
+
+  font: inherit;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
 }
 
 .accountPrimary {
+  border: none;
+
   background:
     linear-gradient(
       135deg,
       var(--primary),
       var(--primary-dark)
     );
+
   color: #ffffff;
+
+  box-shadow:
+    0 8px 24px rgba(249, 115, 22, 0.22);
+}
+
+.accountPrimary:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 12px 30px rgba(249, 115, 22, 0.3);
+}
+
+.accountPrimary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.accountPrimary:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
 }
 
 .googleButton {
   margin-top: 1rem;
+
   border: 1px solid var(--border);
+
   background: var(--card);
   color: var(--text);
+}
+
+.googleButton:hover {
+  background: rgba(148, 163, 184, 0.08);
+
+  transform: translateY(-1px);
 }
 
 .accountDivider {
   display: flex;
   align-items: center;
+
   gap: 0.75rem;
-  margin: 1.1rem 0;
+
+  margin: 1.25rem 0;
+
   color: var(--soft);
+
+  font-size: 0.85rem;
 }
 
 .accountDivider::before,
 .accountDivider::after {
   content: "";
+
   flex: 1;
+
   height: 1px;
+
   background: var(--border);
 }
 
 .accountSwitch {
   width: 100%;
+
   margin-top: 1rem;
+
   border: none;
+
   background: transparent;
   color: var(--primary);
+
   font-weight: 800;
+
+  cursor: pointer;
+}
+
+.accountSwitch:hover {
+  text-decoration: underline;
 }
 
 .accountError,
 .accountSuccess {
   margin: 1rem 0;
+
   padding: 0.9rem 1rem;
-  border-radius: 1rem;
+
+  border-radius: 0.9rem;
+
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .accountError {
-  border:
-    1px solid
-    rgba(239, 68, 68, 0.4);
-  background:
-    rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+
+  background: rgba(239, 68, 68, 0.1);
+
   color: #fecaca;
 }
 
 .accountSuccess {
-  border:
-    1px solid
-    rgba(34, 197, 94, 0.4);
-  background:
-    rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+
+  background: rgba(34, 197, 94, 0.1);
+
   color: #bbf7d0;
 }
 
@@ -167,110 +329,544 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+
   gap: 1rem;
+
+  padding-right: 3.5rem;
+}
+
+.settingsHeader h2 {
+  margin: 0.25rem 0 0;
+
+  color: var(--text);
+
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 900;
+
+  letter-spacing: -0.03em;
+}
+
+.settingsHeader .eyebrow {
+  margin: 0;
+
+  color: var(--primary);
+
+  font-size: 0.72rem;
+  font-weight: 900;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .settingsTabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 1.4rem 0;
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 0.45rem;
+
+  margin: 1.5rem 0;
+
+  padding: 0.35rem;
+
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+
+  background: rgba(148, 163, 184, 0.05);
 }
 
 .settingsTab {
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.75rem 1rem;
-  background: var(--card);
+  min-height: 43px;
+
+  border: none;
+  border-radius: 0.75rem;
+
+  padding: 0.7rem 0.9rem;
+
+  background: transparent;
   color: var(--muted);
-  font-weight: 850;
+
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.settingsTab:hover {
+  color: var(--text);
+
+  background: rgba(148, 163, 184, 0.08);
 }
 
 .activeSettingsTab {
-  border-color: transparent;
   background:
     linear-gradient(
       135deg,
       var(--primary),
       var(--primary-dark)
     );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 5px 16px rgba(249, 115, 22, 0.2);
+}
+
+.activeSettingsTab:hover {
   color: #ffffff;
 }
 
 .paymentSettings {
   display: grid;
-  gap: 1rem;
+
+  gap: 1.15rem;
 }
 
 .savedPaymentCard,
 .emptyPayment {
-  padding: 1.25rem;
   border: 1px solid var(--border);
-  border-radius: 1.25rem;
+  border-radius: 1.15rem;
+
+  padding: 1.3rem;
+
   background: var(--card);
 }
 
+.emptyPayment {
+  text-align: center;
+
+  border-style: dashed;
+
+  padding: 1.8rem;
+}
+
+.emptyPayment h3 {
+  margin: 0 0 0.45rem;
+
+  color: var(--text);
+
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.emptyPayment p {
+  margin: 0;
+
+  color: var(--muted);
+
+  line-height: 1.55;
+}
+
 .savedPaymentCard {
+  position: relative;
+
   display: grid;
-  gap: 0.7rem;
+  gap: 0.8rem;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(249, 115, 22, 0.18),
+      transparent 45%
+    ),
+    var(--card);
+}
+
+.savedPaymentCard::after {
+  content: "";
+
+  position: absolute;
+
+  top: -65px;
+  right: -65px;
+
+  width: 160px;
+  height: 160px;
+
+  border-radius: 50%;
+
+  background: rgba(249, 115, 22, 0.08);
+
+  pointer-events: none;
 }
 
 .savedPaymentCard div {
+  position: relative;
+  z-index: 1;
+
   display: flex;
-  gap: 0.7rem;
   align-items: center;
+
+  gap: 0.8rem;
+}
+
+.savedPaymentCard strong {
+  color: var(--text);
+
+  font-size: 1rem;
+  letter-spacing: 0.08em;
 }
 
 .savedCardBrand {
+  padding: 0.35rem 0.55rem;
+
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+
+  background: rgba(255, 255, 255, 0.05);
+
   text-transform: uppercase;
+
+  font-size: 0.73rem;
   font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 .dangerButton {
+  position: relative;
+  z-index: 1;
+
   width: fit-content;
-  border:
-    1px solid
-    rgba(239, 68, 68, 0.4);
-  border-radius: 999px;
-  padding: 0.65rem 0.85rem;
-  background:
-    rgba(239, 68, 68, 0.12);
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 0.75rem;
+
+  padding: 0.65rem 0.9rem;
+
+  background: rgba(239, 68, 68, 0.08);
   color: #fca5a5;
+
+  font: inherit;
+  font-size: 0.82rem;
   font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dangerButton:hover {
+  border-color: rgba(239, 68, 68, 0.55);
+
+  background: rgba(239, 68, 68, 0.15);
+
+  transform: translateY(-1px);
 }
 
 .consentRow {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.75rem;
+
+  grid-template-columns:
+    auto 1fr;
+
+  gap: 0.8rem;
+
   align-items: flex-start;
+
   padding: 1rem;
+
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 0.9rem;
+
   background: var(--card);
+
+  color: var(--muted);
+
+  font-size: 0.85rem;
+  line-height: 1.5;
+
+  cursor: pointer;
 }
 
 .consentRow input {
   width: 1.1rem;
   height: 1.1rem;
+
+  margin-top: 0.1rem;
+
+  accent-color: var(--primary);
+
+  cursor: pointer;
 }
 
 .paymentSetupForm {
   display: grid;
+
+  gap: 1rem;
+
+  padding: 1rem;
+
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+
+  background: var(--card);
+}
+
+.cardInputGroup {
+  display: grid;
+
+  gap: 1rem;
+
+  padding: 1.2rem;
+
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+
+  background: var(--card);
+}
+
+.cardInputGroup label {
+  display: grid;
+
+  gap: 0.45rem;
+
+  color: var(--text);
+
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.cardInputGroup input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+
+  padding: 0.88rem 1rem;
+
+  background: var(--panel-strong);
+  color: var(--text);
+
+  font: inherit;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cardInputGroup input:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 4px rgba(249, 115, 22, 0.13);
+}
+
+.cardInputGroup input::placeholder {
+  color: var(--soft);
+}
+
+.cardRow {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.5fr)
+    minmax(120px, 0.8fr);
+
   gap: 1rem;
 }
 
-@media (max-width: 600px) {
-  .accountFormGrid {
-    grid-template-columns: 1fr;
+.expiryGroup {
+  display: grid;
+
+  grid-template-columns:
+    1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 0.45rem;
+}
+
+.expiryGroup span {
+  color: var(--muted);
+
+  text-align: center;
+}
+
+.expiryGroup input {
+  text-align: center;
+}
+
+.accountPrimary:focus-visible,
+.googleButton:focus-visible,
+.accountClose:focus-visible,
+.settingsTab:focus-visible,
+.dangerButton:focus-visible,
+.accountSwitch:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .accountOverlay {
+    align-items: start;
+
+    padding: 0.75rem;
+  }
+
+  .accountModal {
+    margin: 0.75rem 0;
+
+    max-height: calc(100vh - 1.5rem);
+
+    border-radius: 1.2rem;
   }
 
   .settingsTabs {
-    display: grid;
     grid-template-columns: 1fr;
   }
 
   .settingsTab {
     width: 100%;
   }
+
+  .accountFormGrid,
+  .cardRow {
+    grid-template-columns: 1fr;
+  }
+
+  .settingsHeader h2 {
+    font-size: 1.55rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .accountOverlay {
+    padding: 0;
+  }
+
+  .accountModal {
+    width: 100%;
+
+    min-height: 100vh;
+    max-height: 100vh;
+
+    margin: 0;
+
+    border: none;
+    border-radius: 0;
+
+    padding: 1.2rem;
+  }
+
+  .settingsHeader {
+    padding-right: 3rem;
+  }
+
+  .accountClose {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+
+  .savedPaymentCard div {
+    flex-wrap: wrap;
+  }
+}
+
+.cardLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.detectedCardBrand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.28rem 0.55rem;
+
+  border: 1px solid
+    rgba(249, 115, 22, 0.3);
+
+  border-radius: 0.45rem;
+
+  background:
+    rgba(249, 115, 22, 0.1);
+
+  color: var(--primary);
+
+  font-size: 0.68rem;
+  font-weight: 900;
+
+  letter-spacing: 0.06em;
+}
+
+.stripeCardField {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.stripeFieldLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.stripeInput {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 0.95rem 1rem;
+
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+
+  background: var(--panel-strong);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.stripeInput:focus-within {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(249, 115, 22, 0.13);
+}
+
+.stripeCardRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.detectedCardBrand {
+  padding: 0.25rem 0.55rem;
+
+  border-radius: 0.45rem;
+
+  background:
+    rgba(249, 115, 22, 0.12);
+
+  color: var(--primary);
+
+  font-size: 0.7rem;
+  font-weight: 900;
+
+  text-transform: uppercase;
 }
