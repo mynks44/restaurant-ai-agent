@@ -10,22 +10,23 @@ html {
 :root,
 body[data-theme="dark"] {
   --bg: #07111f;
-  --panel: rgba(15, 23, 42, 0.9);
-  --panel-strong: rgba(15, 23, 42, 0.98);
-  --card: rgba(30, 41, 59, 0.9);
-  --card-soft: rgba(51, 65, 85, 0.72);
+  --panel: rgba(15, 23, 42, 0.92);
+  --panel-strong: #0f172a;
+  --card: rgba(30, 41, 59, 0.94);
+  --card-soft: rgba(51, 65, 85, 0.78);
   --text: #f8fafc;
-  --muted: #cbd5e1;
-  --soft: #94a3b8;
-  --border: rgba(148, 163, 184, 0.24);
-  --primary: #f97316;
-  --primary-dark: #ea580c;
-  --primary-soft: rgba(249, 115, 22, 0.16);
+  --heading: #ffffff;
+  --muted: #d4dbe8;
+  --soft: #a8b3c7;
+  --border: rgba(148, 163, 184, 0.26);
+  --primary: #fb923c;
+  --primary-dark: #f97316;
+  --primary-soft: rgba(251, 146, 60, 0.17);
   --success: #22c55e;
   --success-soft: rgba(34, 197, 94, 0.14);
   --danger: #ef4444;
   --danger-soft: rgba(239, 68, 68, 0.14);
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
   --radius-xl: 1.875rem;
   --radius-lg: 1.5rem;
   --radius-md: 1.125rem;
@@ -38,9 +39,17 @@ body[data-theme="light"] {
   --card: rgba(248, 250, 252, 0.98);
   --card-soft: rgba(241, 245, 249, 0.96);
   --text: #0f172a;
+  --heading: #0f172a;
   --muted: #475569;
   --soft: #64748b;
   --border: rgba(15, 23, 42, 0.12);
+  --primary: #f97316;
+  --primary-dark: #ea580c;
+  --primary-soft: rgba(249, 115, 22, 0.13);
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.12);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
   --shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
 }
 
@@ -49,8 +58,8 @@ body {
   min-width: 320px;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.16), transparent 34%),
+    radial-gradient(circle at top left, rgba(251, 146, 60, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.14), transparent 34%),
     var(--bg);
   color: var(--text);
 }
@@ -70,7 +79,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(249, 115, 22, 0.42);
+  outline: 3px solid rgba(251, 146, 60, 0.45);
   outline-offset: 3px;
 }
 
@@ -85,6 +94,7 @@ select:disabled {
   width: 100%;
   min-height: 100vh;
   padding: clamp(0.75rem, 2vw, 1.5rem);
+  color: var(--text);
 }
 
 .topbar,
@@ -96,6 +106,7 @@ select:disabled {
   background: var(--panel);
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow);
+  color: var(--text);
 }
 
 .topbar {
@@ -132,7 +143,7 @@ select:disabled {
 
 .eyebrow {
   margin: 0 0 0.4rem 0;
-  color: #fb923c;
+  color: var(--primary);
   font-weight: 900;
   font-size: clamp(0.68rem, 1vw, 0.76rem);
   letter-spacing: 0.14em;
@@ -150,7 +161,15 @@ h1,
 h2,
 h3,
 strong {
-  color: var(--text);
+  color: var(--heading);
+}
+
+.topbar h1,
+.brand h1,
+body[data-theme="dark"] .topbar h1,
+body[data-theme="dark"] .brand h1 {
+  color: #ffffff;
+  text-shadow: 0 1px 24px rgba(255, 255, 255, 0.08);
 }
 
 h1 {
@@ -209,7 +228,7 @@ p {
 .themeButton:hover,
 .closeButton:hover {
   transform: translateY(-1px);
-  border-color: rgba(249, 115, 22, 0.5);
+  border-color: rgba(251, 146, 60, 0.55);
   background: var(--card-soft);
 }
 
@@ -326,7 +345,7 @@ body[data-theme="light"] .liveBadge {
   height: clamp(360px, 48vh, 560px);
   overflow-y: auto;
   padding: clamp(1rem, 2vw, 1.4rem);
-  background: rgba(2, 6, 23, 0.1);
+  background: rgba(2, 6, 23, 0.12);
   scroll-behavior: smooth;
 }
 
@@ -366,7 +385,7 @@ body[data-theme="light"] .messages {
 .messageRole {
   display: block;
   margin-bottom: 0.38rem;
-  opacity: 0.76;
+  opacity: 0.78;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -375,7 +394,7 @@ body[data-theme="light"] .messages {
 
 .assistantBubble {
   background: #111827;
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.3);
   border-bottom-left-radius: 0.5rem;
   color: #f8fafc;
 }
@@ -410,7 +429,7 @@ body[data-theme="light"] .assistantBubble p {
   border-top: 1px solid var(--border);
   display: grid;
   gap: 0.55rem;
-  background: rgba(2, 6, 23, 0.06);
+  background: rgba(2, 6, 23, 0.08);
 }
 
 body[data-theme="light"] .promptDropdownBar {
@@ -588,13 +607,13 @@ textarea::placeholder {
 body[data-theme="dark"] .selectCard,
 body[data-theme="dark"] .optionChip {
   background: #111827;
-  border-color: rgba(148, 163, 184, 0.28);
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 .selectCard:hover,
 .optionChip:hover {
   transform: translateY(-1px);
-  border-color: rgba(249, 115, 22, 0.46);
+  border-color: rgba(251, 146, 60, 0.5);
 }
 
 .selectCard strong,
@@ -612,13 +631,13 @@ body[data-theme="dark"] .optionChip {
 
 .selectedCard,
 .activeChip {
-  border-color: rgba(249, 115, 22, 0.75);
+  border-color: rgba(251, 146, 60, 0.78);
   background: var(--primary-soft);
 }
 
 body[data-theme="dark"] .selectedCard,
 body[data-theme="dark"] .activeChip {
-  background: rgba(249, 115, 22, 0.2);
+  background: rgba(251, 146, 60, 0.2);
   color: #ffffff;
 }
 
@@ -839,6 +858,81 @@ body[data-theme="dark"] .menuItem {
   flex: 0 0 auto;
 }
 
+body[data-theme="dark"] .app,
+body[data-theme="dark"] .topbar,
+body[data-theme="dark"] .hero,
+body[data-theme="dark"] .mainPanel,
+body[data-theme="dark"] .cartPanel,
+body[data-theme="dark"] .menuModal,
+body[data-theme="dark"] .manualBlock,
+body[data-theme="dark"] .currentPreview,
+body[data-theme="dark"] .emptyCart,
+body[data-theme="dark"] .cartItem,
+body[data-theme="dark"] .totalBox,
+body[data-theme="dark"] .menuItem {
+  color: #f8fafc;
+}
+
+body[data-theme="dark"] h1,
+body[data-theme="dark"] h2,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] strong,
+body[data-theme="dark"] .brand h1,
+body[data-theme="dark"] .topbar h1,
+body[data-theme="dark"] .cartHeader h2,
+body[data-theme="dark"] .manualHeader h2,
+body[data-theme="dark"] .chatHeader h2,
+body[data-theme="dark"] .modalHeader h2 {
+  color: #ffffff;
+}
+
+body[data-theme="dark"] p,
+body[data-theme="dark"] span,
+body[data-theme="dark"] small,
+body[data-theme="dark"] label,
+body[data-theme="dark"] .currentPreview p,
+body[data-theme="dark"] .emptyCart p,
+body[data-theme="dark"] .cartItem p,
+body[data-theme="dark"] .totalBox span,
+body[data-theme="dark"] .menuItem span {
+  color: #d4dbe8;
+}
+
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+body[data-theme="dark"] input::placeholder,
+body[data-theme="dark"] textarea::placeholder {
+  color: #a8b3c7;
+}
+
+body[data-theme="dark"] select option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+body[data-theme="dark"] .secondaryButton,
+body[data-theme="dark"] .themeButton,
+body[data-theme="dark"] .resetButton,
+body[data-theme="dark"] .closeButton {
+  background: #111827;
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+body[data-theme="dark"] .eyebrow {
+  color: #fb923c;
+}
+
+body[data-theme="dark"] .liveBadge {
+  color: #bbf7d0;
+}
+
 body[data-theme="dark"] .messages::-webkit-scrollbar,
 body[data-theme="dark"] .cartItems::-webkit-scrollbar,
 body[data-theme="dark"] .modalBody::-webkit-scrollbar {
@@ -971,4 +1065,91 @@ body[data-theme="dark"] .modalBody::-webkit-scrollbar-thumb:hover {
   .menuGrid {
     grid-template-columns: 1fr;
   }
+}
+
+body[data-theme="light"] {
+  color: #0f172a;
+}
+
+body[data-theme="light"] .app,
+body[data-theme="light"] .topbar,
+body[data-theme="light"] .hero,
+body[data-theme="light"] .mainPanel,
+body[data-theme="light"] .cartPanel,
+body[data-theme="light"] .menuModal,
+body[data-theme="light"] .manualBlock,
+body[data-theme="light"] .currentPreview,
+body[data-theme="light"] .emptyCart,
+body[data-theme="light"] .cartItem,
+body[data-theme="light"] .totalBox,
+body[data-theme="light"] .menuItem {
+  color: #0f172a;
+}
+
+body[data-theme="light"] h1,
+body[data-theme="light"] h2,
+body[data-theme="light"] h3,
+body[data-theme="light"] strong,
+body[data-theme="light"] .brand h1,
+body[data-theme="light"] .topbar h1,
+body[data-theme="light"] .cartHeader h2,
+body[data-theme="light"] .manualHeader h2,
+body[data-theme="light"] .chatHeader h2,
+body[data-theme="light"] .modalHeader h2 {
+  color: #0f172a;
+  text-shadow: none;
+}
+
+body[data-theme="light"] p,
+body[data-theme="light"] span,
+body[data-theme="light"] small,
+body[data-theme="light"] label,
+body[data-theme="light"] .currentPreview p,
+body[data-theme="light"] .emptyCart p,
+body[data-theme="light"] .cartItem p,
+body[data-theme="light"] .totalBox span,
+body[data-theme="light"] .menuItem span {
+  color: #475569;
+}
+
+body[data-theme="light"] .eyebrow {
+  color: #ea580c;
+}
+
+body[data-theme="light"] .logoMark,
+body[data-theme="light"] .logoMark span,
+body[data-theme="light"] .modeTabs .activeTab,
+body[data-theme="light"] .promptControls button,
+body[data-theme="light"] .inputArea button,
+body[data-theme="light"] .checkoutButton,
+body[data-theme="light"] .primaryWide,
+body[data-theme="light"] .userBubble,
+body[data-theme="light"] .userBubble p,
+body[data-theme="light"] .userBubble span {
+  color: #ffffff;
+}
+
+body[data-theme="light"] .secondaryButton,
+body[data-theme="light"] .themeButton,
+body[data-theme="light"] .resetButton,
+body[data-theme="light"] .closeButton {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+body[data-theme="light"] input,
+body[data-theme="light"] select,
+body[data-theme="light"] textarea {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+body[data-theme="light"] input::placeholder,
+body[data-theme="light"] textarea::placeholder {
+  color: #64748b;
+}
+
+body[data-theme="light"] select option {
+  color: #0f172a;
+  background: #ffffff;
 }
